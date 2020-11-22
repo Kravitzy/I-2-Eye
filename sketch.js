@@ -47,18 +47,26 @@ function preload() {
 
 function setup() {
 	createCanvas(windowWidth, windowHeight);
-	midX = windowWidth/2;
-	midY = windowHeight/2;
-	bootstrapX = windowWidth/12;
-	bootstrapY = windowHeight/12;
+	
+	initValues();
 
-	setupSounds();
+	// setupSounds();
 
 	setupButtons();
 
 	setupSprites();
+
+	var foo = new p5.Speech(); // speech synthesis object
+	foo.speak('hi there'); // say something
 }
 
+
+function initValues() {
+	midX = windowWidth / 2;
+	midY = windowHeight / 2;
+	bootstrapX = windowWidth / 12;
+	bootstrapY = windowHeight / 12;
+}
 
 function setupSounds() {
 	song.loop(); // song is ready to play during setup() because it was loaded during preload
@@ -67,7 +75,6 @@ function setupSounds() {
 
 function setupSprites() {
 
-	// init background
 	setupBackground();
 
 	setupHead();
