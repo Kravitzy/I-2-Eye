@@ -50,14 +50,11 @@ function setup() {
 	
 	initValues();
 
-	// setupSounds();
+	setupSounds();
 
 	setupButtons();
 
 	setupSprites();
-
-	var foo = new p5.Speech(); // speech synthesis object
-	foo.speak('hi there'); // say something
 }
 
 
