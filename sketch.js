@@ -242,20 +242,8 @@ var allData = {};
 var LOOK_BACK_TIME = 2000; // look back 2 seconds
 
 lastChange = -1;
-var collisionEyeListener = async function(data, clock) {
-    if(!data || !head)
-	  return;
-	  
-	allData[clock] = {x:data.x,y:data.y};
-	cutoff = clock - LOOK_BACK_TIME;
-		
-	allData = Object.keys(allData)
-	.filter(key => key > cutoff)
-	.reduce((obj, key) => {
-	obj[key] = allData[key];
-	return obj;
-	}, {});
 
+function calculateAveragePoint(allData) {
 	avgPoint = Object.keys(allData).reduce((obj, key) => {
 		return {
 			x:obj.x+allData[key].x,
@@ -263,10 +251,36 @@ var collisionEyeListener = async function(data, clock) {
 		}
 	}, {x:0,y:0});
 	dataLength = Object.keys(allData).length;
-	avgPoint = {x:avgPoint.x/dataLength, y:avgPoint.y/dataLength};
-	avgDot.style.transform = 'translate3d(' + avgPoint.x + 'px,' + avgPoint.y + 'px,0)';
+	return {x:avgPoint.x/dataLength, y:avgPoint.y/dataLength};
+}
+function pointInside(point, sprite) {
+	return inBounds(point.x,point.y,sprite.position.x,sprite.position.y,sprite.width,sprite.height);
+}
+useAveragePoint = true;
+var collisionEyeListener = async function (data, clock) {
+	if (!data || !head)
+		return;
+	allData[clock] = { x: data.x, y: data.y };
+	// remove points older than 2 seconds ago
+	cutoff = clock - LOOK_BACK_TIME;
+	allData = Object.keys(allData)
+		.filter(key => key > cutoff)
+		.reduce((obj, key) => {
+			obj[key] = allData[key];
+			return obj;
+		}, {});
+
+	isColliding = false;
+	if (useAveragePoint) {
+		// calculate the average point over the last 2 seconds
+		avgPoint = calculateAveragePoint(allData);
+		avgDot.style.transform = 'translate3d(' + avgPoint.x + 'px,' + avgPoint.y + 'px,0)';
+		isColliding = pointInside(avgPoint, head);
+	} else {
+		isColliding = pointInside(data, head);
+	}
 	
-	if((lastChange < 0 || lastChange < cutoff) && inBounds(avgPoint.x,avgPoint.y,head.position.x,head.position.y,head.width,head.height)) {
+	if((lastChange < 0 || lastChange < cutoff) && isColliding) {
 	   lastChange = clock;
 	   nextBackground();
 	}
