@@ -51,8 +51,23 @@ window.applyKalmanFilter = true;
 window.saveDataAcrossSessions = true;
 
 
+avgDot = document.createElement('div');
+
+avgDot.style.display  = 'block';
+avgDot.style.position = 'fixed';
+avgDot.style.zIndex = 99999;
+avgDot.style.left = '-5px'; //'-999em';
+avgDot.style.top  = '-5px';
+avgDot.style.background = 'blue';
+avgDot.style.borderRadius = '100%';
+avgDot.style.opacity = '0.7';
+avgDot.style.width = '10px';
+avgDot.style.height = '10px';
+
+
 window.onload = async function() {
 
+	document.body.appendChild(avgDot);
 if (!window.saveDataAcrossSessions) {
 	var localstorageDataLabel = 'webgazerGlobalData';
 	localforage.setItem(localstorageDataLabel, null);
@@ -223,10 +238,37 @@ function draw() {
 function inBounds(pointX,pointY,boundX,boundY,boundWidth,boundHeight) {
 	return pointX > boundX && pointX < boundX + boundWidth && pointY > boundY && pointY < boundY + boundHeight;
 }
+var allData = {};
+var LOOK_BACK_TIME = 2000; // look back 2 seconds
+
+lastChange = -1;
 var collisionEyeListener = async function(data, clock) {
     if(!data || !head)
-      return;
-	if(inBounds(data.x,data.y,head.position.x,head.position.y,head.width,head.height)) {
-		nextBackground();
+	  return;
+	  
+	allData[clock] = {x:data.x,y:data.y};
+	cutoff = clock - LOOK_BACK_TIME;
+		
+	allData = Object.keys(allData)
+	.filter(key => key > cutoff)
+	.reduce((obj, key) => {
+	obj[key] = allData[key];
+	return obj;
+	}, {});
+
+	avgPoint = Object.keys(allData).reduce((obj, key) => {
+		return {
+			x:obj.x+allData[key].x,
+			y:obj.y+allData[key].y,
+		}
+	}, {x:0,y:0});
+	dataLength = Object.keys(allData).length;
+	avgPoint = {x:avgPoint.x/dataLength, y:avgPoint.y/dataLength};
+	avgDot.style.transform = 'translate3d(' + avgPoint.x + 'px,' + avgPoint.y + 'px,0)';
+	
+	if((lastChange < 0 || lastChange < cutoff) && inBounds(avgPoint.x,avgPoint.y,head.position.x,head.position.y,head.width,head.height)) {
+	   lastChange = clock;
+	   nextBackground();
 	}
+	console.log(avgPoint);
 }
