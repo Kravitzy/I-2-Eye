@@ -44,6 +44,38 @@ function preload() {
 	}
 }
 
+// Kalman Filter defaults to on.
+window.applyKalmanFilter = true;
+
+// Set to true if you want to save the data even if you reload the page.
+window.saveDataAcrossSessions = true;
+
+
+window.onload = async function() {
+
+if (!window.saveDataAcrossSessions) {
+	var localstorageDataLabel = 'webgazerGlobalData';
+	localforage.setItem(localstorageDataLabel, null);
+	var localstorageSettingsLabel = 'webgazerGlobalSettings';
+	localforage.setItem(localstorageSettingsLabel, null);
+}
+webgazer.params.showVideoPreview = true;
+const webgazerInstance = await webgazer.setRegression('ridge') /* currently must set regression and tracker */
+.setTracker('TFFacemesh')
+.begin();
+webgazerInstance.showPredictionPoints(true); /* shows a square every 100 milliseconds where current prediction is */
+
+webgazer.setGazeListener( collisionEyeListener );
+};
+
+window.onbeforeunload = function() {
+if (window.saveDataAcrossSessions) {
+	webgazer.end();
+} else {
+	localforage.clear();
+}
+}
+
 
 function setup() {
 	createCanvas(windowWidth, windowHeight);
@@ -56,8 +88,8 @@ function setup() {
 
 	setupSprites();
 
-	var foo = new p5.Speech(); // speech synthesis object
-	foo.speak('hi there'); // say something
+	// var foo = new p5.Speech(); // speech synthesis object
+	// foo.speak('hi there'); // say something
 }
 
 
@@ -140,15 +172,15 @@ function legSetup() {
 	}
 }
 
-
+var nextBackground= function() {
+		currentBg = (currentBg+1) % backgroundCount;
+		background.changeImage('bg' + currentBg);
+}
 function setupButtons() {
 
 	buttonBackground = createSprite(bootstrapX * 1, bootstrapY * 1);
 	buttonBackground.addImage('btn0', buttons[0]);
-	buttonBackground.onMouseReleased = function() {
-		currentBg = (currentBg+1) % backgroundCount;
-		background.changeImage('bg' + currentBg);
-	};
+	buttonBackground.onMouseReleased = nextBackground;
 
 	buttonHead = createSprite(bootstrapX * 1, bootstrapY * 3);
 	buttonHead.addImage('btn1', buttons[1]);
@@ -186,4 +218,15 @@ function setupButtons() {
 
 function draw() {
 	drawSprites();
+}
+
+function inBounds(pointX,pointY,boundX,boundY,boundWidth,boundHeight) {
+	return pointX > boundX && pointX < boundX + boundWidth && pointY > boundY && pointY < boundY + boundHeight;
+}
+var collisionEyeListener = async function(data, clock) {
+    if(!data || !head)
+      return;
+	if(inBounds(data.x,data.y,head.position.x,head.position.y,head.width,head.height)) {
+		nextBackground();
+	}
 }
