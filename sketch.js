@@ -22,9 +22,19 @@ let legs = [];
 let arms = [];
 let poses = [];
 let buttons = [];
+let faceImage;
 
 let midX, midY, bootstrapX, bootstrapY;
 let selectedPose;
+
+let eyeContactTime = 0;
+let isThereEyeContact = false;
+
+const gameStates = {
+	GAMEPLAY: 'gameplay',
+	FACELOOK: 'facelook'
+}
+let gameState = "";
 
 function preload() {
 	song = loadSound('./assets/sound/bensound-funnysong.mp3');
@@ -47,11 +57,14 @@ function preload() {
 	for (let i = 0; i < 5; i++) {
 		buttons[i] = loadImage('./assets/images/btn' + i + '.png');
 	}
+
+	faceImage = loadImage('./assets/images/profile_picture.jpg');
 }
 
 
 function setup() {
-	const debugMode = true;
+	gameState = gameStates.GAMEPLAY;
+
 	createCanvas(windowWidth, windowHeight);
 
 	initValues();
@@ -61,7 +74,6 @@ function setup() {
 	setupButtons();
 
 	setupSprites();
-
 }
 
 
@@ -93,11 +105,24 @@ function setupSprites() {
 
 	poseSetup();
 
+	setupFace();
+
 }
 
+
 function resetGame() {
+	// reset timer
+	eyeContactTime = 0;
+	isThereEyeContact = false;
+
+	// set gam mode to gameplay
+	gameState = gameStates.GAMEPLAY
+
+	// reset face visibility
+	face.visible = false;
+
 	// change pose
-	rnd = int(random(0, poseCount));
+	let rnd = int(random(0, poseCount));
 	selectedPose = rnd
 	pose.changeImage('pose' + selectedPose);
 	// change head
@@ -118,8 +143,6 @@ function resetGame() {
 	currentLeg = rnd;
 	legRight.changeImage('legRight' + rnd);
 	legLeft.changeImage('legLeft' + rnd);
-
-
 }
 
 function debugDisplay(params) {
@@ -127,26 +150,40 @@ function debugDisplay(params) {
 	let spaceBy = 15
 	text("--Debug Mode--", 0, spaceing, 100, 100)
 	spaceing += spaceBy
-	text("selectedPose: " + selectedPose, 0, spaceing, 100, 100)
+	text("selectedPose: " + selectedPose, 0, spaceing, 200, 100)
 	spaceing += spaceBy
-	text("currentHead: " + currentHead, 0, spaceing, 100, 100)
+	text("currentHead: " + currentHead, 0, spaceing, 200, 100)
 	spaceing += spaceBy
-	text("currentBody: " + currentBody, 0, spaceing, 100, 100)
+	text("currentBody: " + currentBody, 0, spaceing, 200, 100)
 	spaceing += spaceBy
-	text("currentArm: " + currentArm, 0, spaceing, 100, 100)
+	text("currentArm: " + currentArm, 0, spaceing, 200, 100)
 	spaceing += spaceBy
-	text("currentLeg: " + currentLeg, 0, spaceing, 100, 100)
+	text("currentLeg: " + currentLeg, 0, spaceing, 200, 100)
+	spaceing += spaceBy
+	text("gameState: " + gameState, 0, spaceing, 200, 100)
+	spaceing += spaceBy
+	text("eyeContactTime: " + eyeContactTime, 0, spaceing, 200, 100)
+	spaceing += spaceBy
+	text("isThereEyeContact: " + isThereEyeContact, 0, spaceing, 200, 100)
+}
 
+
+function winLevl() {
+
+	// set gamestate to facelook to block incoming touches
+	gameState = gameStates.FACELOOK
+
+	// display face and eye bounds
+	face.visible = true;
+
+	alert("yay! you win");
 }
 
 function checkPlayerMatchesPose() {
-	if (currentBody === selectedPose &&
-		// currentArm  === selectedPose &&
-		currentHead === selectedPose &&
-		currentLeg  === selectedPose	
-	) {
-		alert("yay! you win");
-		resetGame();
+
+	let wonGame = currentBody === selectedPose && /*currentArm  === selectedPose &&*/ currentHead === selectedPose && currentLeg === selectedPose;
+	if (wonGame) {
+		winLevl()
 	}
 }
 
@@ -156,6 +193,28 @@ function setupBackground() {
 		bg.addImage('bg' + i, bgImages[i]);
 		bg.depth = -100;
 	}
+}
+
+function setupFace() {
+
+	face = createSprite(midX, midY);
+	face.addImage('face', faceImage);
+	face.scale = 0.25
+	face.visible = false;
+
+	eyeRect = createSprite(midX, midY - 80, 300, 100);
+	eyeRect.visible = false;
+	eyeRect.onMouseOver = function () {
+		if (gameState === gameStates.FACELOOK) {
+			isThereEyeContact = true;
+		}
+	}
+	eyeRect.onMouseOut = function () {
+		if (gameState === gameStates.FACELOOK) {
+			isThereEyeContact = false;
+		}
+	}
+
 }
 
 function setupHead() {
@@ -185,13 +244,13 @@ function setupBody() {
 
 
 function setupArms() {
-	armRight = createSprite(midX + (40*scale), midY + (10*scale));
+	armRight = createSprite(midX + (40 * scale), midY + (10 * scale));
 	for (let i = 0; i < armCount; i++) {
 		armRight.addImage('armRight' + i, arms[i]);
 		armRight.depth = 20;
 		armRight.scale = scale;
 	}
-	armLeft = createSprite(midX - (40*scale), midY + (10*scale));
+	armLeft = createSprite(midX - (40 * scale), midY + (10 * scale));
 	for (let i = 0; i < armCount; i++) {
 		armLeft.addImage('armLeft' + i, arms[i]);
 		armLeft.mirrorX(-1);
@@ -204,13 +263,13 @@ function setupArms() {
 }
 
 function legSetup() {
-	legRight = createSprite(midX + (20*scale), midY + (60*scale));
+	legRight = createSprite(midX + (20 * scale), midY + (60 * scale));
 	for (let i = 0; i < legCount; i++) {
 		legRight.addImage('legRight' + i, legs[i]);
 		legRight.depth = 20;
 		legRight.scale = scale;
 	}
-	legLeft = createSprite(midX - (20*scale), midY + (60*scale));
+	legLeft = createSprite(midX - (20 * scale), midY + (60 * scale));
 	for (let i = 0; i < legCount; i++) {
 		legLeft.addImage('legLeft' + i, legs[i]);
 		legLeft.mirrorX(-1);
@@ -244,54 +303,81 @@ function setupButtons() {
 	// 	background.changeImage('bg' + currentBg);
 	// };
 
+	debugger
 	buttonHead = createSprite(bootstrapX * 1, bootstrapY * 3);
 	buttonHead.addImage('btn1', buttons[1]);
 	buttonHead.onMouseReleased = function () {
-		currentHead = (currentHead + 1) % headCount;
-		head.changeImage('head' + currentHead);
-		checkPlayerMatchesPose()
+		if (gameState === gameStates.GAMEPLAY) {
+			currentHead = (currentHead + 1) % headCount;
+			head.changeImage('head' + currentHead);
+			checkPlayerMatchesPose()
+		}
 	};
 
 	buttonBody = createSprite(bootstrapX * 1, bootstrapY * 5);
 	buttonBody.addImage('btn2', buttons[4]);
 	buttonBody.onMouseReleased = function () {
-		currentBody = (currentBody + 1) % bodyCount;
-		body.changeImage('body' + currentBody);
-		currentArm = (currentArm + 1) % armCount;
-		armRight.changeImage('armRight' + currentArm);
-		armLeft.changeImage('armLeft' + currentArm);
-		checkPlayerMatchesPose()
+		if (gameState === gameStates.GAMEPLAY) {
+			currentBody = (currentBody + 1) % bodyCount;
+			body.changeImage('body' + currentBody);
+			currentArm = (currentArm + 1) % armCount;
+			armRight.changeImage('armRight' + currentArm);
+			armLeft.changeImage('armLeft' + currentArm);
+			checkPlayerMatchesPose()
+		}
 	};
 
 	// buttonArms = createSprite(bootstrapX * 1, bootstrapY * 7);
 	// buttonArms.addImage('btn3', buttons[2]);
 	// buttonArms.onMouseReleased = function() {
+	// if (gameState === gameStates.GAMEPLAY) {
 	// 	currentArm = (currentArm+1) % armCount;
 	// 	armRight.changeImage('armRight' + currentArm);
 	// 	armLeft.changeImage('armLeft' + currentArm);
 	// checkPlayerMatchesPose()
+	// }
 	// };
 
 	buttonLegs = createSprite(bootstrapX * 1, bootstrapY * 7);
 	buttonLegs.addImage('btn4', buttons[3]);
 	buttonLegs.onMouseReleased = function () {
-		currentLeg = (currentLeg + 1) % legCount;
-		legRight.changeImage('legRight' + currentLeg);
-		legLeft.changeImage('legLeft' + currentLeg);
-		checkPlayerMatchesPose()
+		if (gameState === gameStates.GAMEPLAY) {
+			currentLeg = (currentLeg + 1) % legCount;
+			legRight.changeImage('legRight' + currentLeg);
+			legLeft.changeImage('legLeft' + currentLeg);
+			checkPlayerMatchesPose()
+		}
 	};
 
 
 
 }
 
-function draw() {
-	const debugMode= true;
+function faceLookLogic() {
+	if (isThereEyeContact) {
+		eyeContactTime++;
+	}
 
-	background(255)
+	if (eyeContactTime > 200) {
+		resetGame()
+	}
+}
+
+function draw() {
+	const debugMode = true;
+
+	background(255);
 	drawSprites();
 
+	switch (gameState) {
+		case gameStates.FACELOOK:
+			faceLookLogic()
+			break;
+		default:
+			break;
+	}
+
 	if (debugMode === true) {
-		debugDisplay()		
+		debugDisplay()
 	}
 }
