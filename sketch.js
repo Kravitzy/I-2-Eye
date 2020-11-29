@@ -37,7 +37,7 @@ const gameStates = {
 let gameState = "";
 
 function preload() {
-	song = loadSound('./assets/sound/bensound-funnysong.mp3');
+	song = loadSound('./assets/sound/bensound-cute.mp3');
 
 	// load backgrounds
 	for (let i = 0; i < backgroundCount; i++) {
@@ -178,7 +178,7 @@ function winLevl() {
 
 	// display face and eye bounds
 	face.visible = true;
-	eyeRect.visible = true;
+	eyeRect.visible = false;
 }
 
 function checkPlayerMatchesPose() {
