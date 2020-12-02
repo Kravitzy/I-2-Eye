@@ -40,6 +40,7 @@ let gameState = "";
 function preload() {
 	song = loadSound('./assets/sound/bensound-cute.mp3');
 	bubbleReset = loadSound('./assets/sound/bubble_reset.mp3');
+	cheerSound = loadSound('./assets/sound/cheer0.mp3');
 	// for (let i = 0; i < array.length; i++) {
 	// 	bubbleSounds[i] = loadSound('./assets/sound/bubble' + i + '.mp3');
 	// }
@@ -158,11 +159,11 @@ function displayText(params) {
 	let xPos = 20;
 	text("Credits: ", xPos, spaceing, 300, 300)
 	spaceing += spaceBy
-	text("Sound effects obtained from https://www.zapsplat.com", xPos, spaceing, 300, 300)
+	text("Sound effects obtained from www.zapsplat.com", xPos, spaceing, 300, 300)
 	spaceing += spaceBy
 	text("Music: www.bensound.com", xPos, spaceing, 300, 300)
 	spaceing += spaceBy
-	text("Art: https://www.kenney.nl/", xPos, spaceing, 300, 300)
+	text("Art: www.kenney.nl", xPos, spaceing, 300, 300)
 }
 
 function debugDisplay(params) {
@@ -191,8 +192,10 @@ function debugDisplay(params) {
 
 function winLevl() {
 
+	cheerSound.play();
+
 	// set gamestate to facelook to block incoming touches
-	gameState = gameStates.FACELOOK
+	gameState = gameStates.FACELOOK;
 
 	// display face and eye bounds
 	face.visible = true;
@@ -314,9 +317,9 @@ function poseSetup() {
 	pose.changeImage('pose' + selectedPose);
 }
 
-var nextBackground= function() {
-		currentBg = (currentBg+1) % backgroundCount;
-		background.changeImage('bg' + currentBg);
+var nextBackground = function () {
+	currentBg = (currentBg + 1) % backgroundCount;
+	background.changeImage('bg' + currentBg);
 }
 
 function setupButtons() {
@@ -385,13 +388,13 @@ function faceLookLogic() {
 		eyeContactTime++;
 	}
 
-	if (eyeContactTime > 60*2) {
+	if (eyeContactTime > 60 * 2) {
 		resetGame()
 	}
 }
 
 function draw() {
-	const debugMode = true;
+	const debugMode = false;
 
 	background(255);
 	drawSprites();
@@ -421,11 +424,11 @@ window.saveDataAcrossSessions = true;
 
 avgDot = document.createElement('div');
 
-avgDot.style.display  = 'block';
+avgDot.style.display = 'block';
 avgDot.style.position = 'fixed';
 avgDot.style.zIndex = 99999;
 avgDot.style.left = '-5px'; //'-999em';
-avgDot.style.top  = '-5px';
+avgDot.style.top = '-5px';
 avgDot.style.background = 'blue';
 avgDot.style.borderRadius = '100%';
 avgDot.style.opacity = '0.7';
@@ -433,34 +436,34 @@ avgDot.style.width = '10px';
 avgDot.style.height = '10px';
 
 
-window.onload = async function() {
+window.onload = async function () {
 
-document.body.appendChild(avgDot);
-if (!window.saveDataAcrossSessions) {
-	var localstorageDataLabel = 'webgazerGlobalData';
-	localforage.setItem(localstorageDataLabel, null);
-	var localstorageSettingsLabel = 'webgazerGlobalSettings';
-	localforage.setItem(localstorageSettingsLabel, null);
-}
+	document.body.appendChild(avgDot);
+	if (!window.saveDataAcrossSessions) {
+		var localstorageDataLabel = 'webgazerGlobalData';
+		localforage.setItem(localstorageDataLabel, null);
+		var localstorageSettingsLabel = 'webgazerGlobalSettings';
+		localforage.setItem(localstorageSettingsLabel, null);
+	}
 
-webgazer.params.showVideoPreview = true;
-const webgazerInstance = await webgazer.setRegression('ridge') /* currently must set regression and tracker */
-.setTracker('TFFacemesh')
-.begin();
-webgazerInstance.showPredictionPoints(true); /* shows a square every 100 milliseconds where current prediction is */
+	webgazer.params.showVideoPreview = true;
+	const webgazerInstance = await webgazer.setRegression('ridge') /* currently must set regression and tracker */
+		.setTracker('TFFacemesh')
+		.begin();
+	webgazerInstance.showPredictionPoints(true); /* shows a square every 100 milliseconds where current prediction is */
 
-webgazer.setGazeListener( collisionEyeListener );
+	webgazer.setGazeListener(collisionEyeListener);
 };
 
-window.onbeforeunload = function() {
-if (window.saveDataAcrossSessions) {
-	webgazer.end();
-} else {
-	localforage.clear();
-}
+window.onbeforeunload = function () {
+	if (window.saveDataAcrossSessions) {
+		webgazer.end();
+	} else {
+		localforage.clear();
+	}
 }
 
-function inBounds(pointX,pointY,boundX,boundY,boundWidth,boundHeight) {
+function inBounds(pointX, pointY, boundX, boundY, boundWidth, boundHeight) {
 	return pointX > boundX && pointX < boundX + boundWidth && pointY > boundY && pointY < boundY + boundHeight;
 }
 
@@ -472,18 +475,18 @@ lastChange = -1;
 function calculateAveragePoint(allData) {
 	avgPoint = Object.keys(allData).reduce((obj, key) => {
 		return {
-			x:obj.x+allData[key].x,
-			y:obj.y+allData[key].y,
+			x: obj.x + allData[key].x,
+			y: obj.y + allData[key].y,
 		}
-	}, {x:0,y:0});
+	}, { x: 0, y: 0 });
 	dataLength = Object.keys(allData).length;
-	return {x:avgPoint.x/dataLength, y:avgPoint.y/dataLength};
+	return { x: avgPoint.x / dataLength, y: avgPoint.y / dataLength };
 }
 
 function pointInside(point, sprite) {
-	
-	return inBounds(point.x,point.y,sprite.position.x,sprite.position.y,sprite.width,sprite.height);
+	return inBounds(point.x, point.y, sprite.position.x, sprite.position.y, sprite.width, sprite.height);
 }
+
 useAveragePoint = true;
 
 var collisionEyeListener = async function (data, clock) {
@@ -507,12 +510,11 @@ var collisionEyeListener = async function (data, clock) {
 		// isColliding = pointInside(avgPoint, eyeRect);
 	} else {
 		// isColliding = pointInside(data, eyeRect);
-
 	}
-	
+
 	// if((lastChange < 0 || lastChange < cutoff) && isColliding) {
 	//    lastChange = clock;
 	//    nextBackground();
 	// }
-	console.log(avgPoint);
+	// console.log(avgPoint);
 }
