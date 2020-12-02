@@ -8,6 +8,7 @@ const legCount = 5;
 const poseCount = 5;
 const totalCharachters = 5;
 const scale = 1.5;
+const bubbleCount = 2
 
 let currentBg = 0;
 let currentBody = 0;
@@ -37,7 +38,11 @@ const gameStates = {
 let gameState = "";
 
 function preload() {
-	song = loadSound('./assets/sound/bensound-funnysong.mp3');
+	song = loadSound('./assets/sound/bensound-cute.mp3');
+	bubbleReset = loadSound('./assets/sound/bubble_reset.mp3');
+	// for (let i = 0; i < array.length; i++) {
+	// 	bubbleSounds[i] = loadSound('./assets/sound/bubble' + i + '.mp3');
+	// }
 
 	// load backgrounds
 	for (let i = 0; i < backgroundCount; i++) {
@@ -147,6 +152,19 @@ function resetGame() {
 	legLeft.changeImage('legLeft' + rnd);
 }
 
+function displayText(params) {
+	let spaceing = 500;
+	let spaceBy = 15;
+	let xPos = 20;
+	text("Credits: ", xPos, spaceing, 300, 300)
+	spaceing += spaceBy
+	text("Sound effects obtained from https://www.zapsplat.com", xPos, spaceing, 300, 300)
+	spaceing += spaceBy
+	text("Music: www.bensound.com", xPos, spaceing, 300, 300)
+	spaceing += spaceBy
+	text("Art: https://www.kenney.nl/", xPos, spaceing, 300, 300)
+}
+
 function debugDisplay(params) {
 	let spaceing = 0;
 	let spaceBy = 15;
@@ -178,10 +196,11 @@ function winLevl() {
 
 	// display face and eye bounds
 	face.visible = true;
-	eyeRect.visible = true;
+	eyeRect.visible = false;
 }
 
 function checkPlayerMatchesPose() {
+	bubbleReset.play();
 
 	let wonGame = currentBody === selectedPose && /*currentArm  === selectedPose &&*/ currentHead === selectedPose && currentLeg === selectedPose;
 	if (wonGame) {
@@ -299,6 +318,7 @@ var nextBackground= function() {
 		currentBg = (currentBg+1) % backgroundCount;
 		background.changeImage('bg' + currentBg);
 }
+
 function setupButtons() {
 
 	// buttonBackground = createSprite(bootstrapX * 11, bootstrapY * 1);
@@ -308,7 +328,6 @@ function setupButtons() {
 	// 	background.changeImage('bg' + currentBg);
 	// };
 
-	debugger
 	buttonHead = createSprite(bootstrapX * 11, bootstrapY * 3);
 	buttonHead.addImage('btn1', buttons[1]);
 	buttonHead.onMouseReleased = function () {
@@ -376,6 +395,7 @@ function draw() {
 
 	background(255);
 	drawSprites();
+	displayText()
 
 	switch (gameState) {
 		case gameStates.FACELOOK:
@@ -388,6 +408,7 @@ function draw() {
 	if (debugMode === true) {
 		debugDisplay()
 	}
+
 }
 
 
@@ -421,7 +442,8 @@ if (!window.saveDataAcrossSessions) {
 	var localstorageSettingsLabel = 'webgazerGlobalSettings';
 	localforage.setItem(localstorageSettingsLabel, null);
 }
-webgazer.params.showVideoPreview = true;
+
+webgazer.params.showVideoPreview = false;
 const webgazerInstance = await webgazer.setRegression('ridge') /* currently must set regression and tracker */
 .setTracker('TFFacemesh')
 .begin();
