@@ -443,7 +443,7 @@ if (!window.saveDataAcrossSessions) {
 	localforage.setItem(localstorageSettingsLabel, null);
 }
 
-webgazer.params.showVideoPreview = false;
+webgazer.params.showVideoPreview = true;
 const webgazerInstance = await webgazer.setRegression('ridge') /* currently must set regression and tracker */
 .setTracker('TFFacemesh')
 .begin();
