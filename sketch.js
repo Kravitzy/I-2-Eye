@@ -421,10 +421,13 @@ window.applyKalmanFilter = true;
 // Set to true if you want to save the data even if you reload the page.
 window.saveDataAcrossSessions = true;
 
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+window.debugMode = urlParams.get('debug') === 'true' 
 
 avgDot = document.createElement('div');
 
-avgDot.style.display = 'block';
+avgDot.style.display = window.debugMode ? 'block' : 'none';
 avgDot.style.position = 'fixed';
 avgDot.style.zIndex = 99999;
 avgDot.style.left = '-5px'; //'-999em';
@@ -447,10 +450,11 @@ window.onload = async function () {
 	}
 
 	webgazer.params.showVideoPreview = true;
+	webgazer.params.showVideo = webgazer.params.showFaceOverlay = webgazer.params.showFaceFeedbackBox = window.debugMode;
 	const webgazerInstance = await webgazer.setRegression('ridge') /* currently must set regression and tracker */
 		.setTracker('TFFacemesh')
 		.begin();
-	webgazerInstance.showPredictionPoints(true); /* shows a square every 100 milliseconds where current prediction is */
+	webgazerInstance.showPredictionPoints(window.debugMode); /* shows a square every 100 milliseconds where current prediction is */
 
 	webgazer.setGazeListener(collisionEyeListener);
 };
@@ -506,6 +510,7 @@ var collisionEyeListener = async function (data, clock) {
 	if (useAveragePoint) {
 		// calculate the average point over the last 2 seconds
 		avgPoint = calculateAveragePoint(allData);
+		console.log(avgPoint);
 		avgDot.style.transform = 'translate3d(' + avgPoint.x + 'px,' + avgPoint.y + 'px,0)';
 		// isColliding = pointInside(avgPoint, eyeRect);
 	} else {
