@@ -384,13 +384,18 @@ function faceLookLogic() {
 
 	let isThereEyeContact = pointInside(avgPoint, eyeRect);
 
-	if (isThereEyeContact) {
-		eyeContactTime++;
-	}
+	// if (isThereEyeContact) {
+	// 	eyeContactTime++;
+	// }
+	// demo version
+	eyeContactTime++;
 
-	if (eyeContactTime > 60 * 2) {
+	if (eyeContactTime > 60*4) {
 		resetGame()
 	}
+
+
+
 }
 
 function draw() {
