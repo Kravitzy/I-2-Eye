@@ -394,7 +394,7 @@ function faceLookLogic() {
 }
 
 function draw() {
-	const debugMode = false;
+	const debugMode = window.debugMode;
 
 	background(255);
 	drawSprites();
