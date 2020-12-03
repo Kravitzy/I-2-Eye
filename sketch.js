@@ -324,6 +324,14 @@ var nextBackground = function () {
 
 function setupButtons() {
 
+	dashboard = createSprite(bootstrapX * 1, bootstrapY * 9);
+	dashboard.addImage('btn1', buttons[0]);
+	dashboard.onMouseReleased = function () {
+		if (gameState === gameStates.GAMEPLAY) {
+			window.location.href = '/dashboard.html';
+		}
+	};
+
 	// buttonBackground = createSprite(bootstrapX * 11, bootstrapY * 1);
 	// buttonBackground.addImage('btn0', buttons[0]);
 	// buttonBackground.onMouseReleased = function () {
