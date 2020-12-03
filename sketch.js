@@ -328,7 +328,7 @@ function setupButtons() {
 	dashboard.addImage('btn1', buttons[0]);
 	dashboard.onMouseReleased = function () {
 		if (gameState === gameStates.GAMEPLAY) {
-			window.location.href = '/dashboard.html';
+			window.location.href = 'https://kravitzy.github.io/I-2-Eye/dashboard.html';
 		}
 	};
 
