@@ -324,13 +324,13 @@ var nextBackground = function () {
 
 function setupButtons() {
 
-	dashboard = createSprite(bootstrapX * 1, bootstrapY * 9);
-	dashboard.addImage('btn1', buttons[0]);
-	dashboard.onMouseReleased = function () {
-		if (gameState === gameStates.GAMEPLAY) {
-			window.location.href = 'https://kravitzy.github.io/I-2-Eye/dashboard.html';
-		}
-	};
+	// dashboard = createSprite(bootstrapX * 1, bootstrapY * 9);
+	// dashboard.addImage('btn1', buttons[0]);
+	// dashboard.onMouseReleased = function () {
+	// 	if (gameState === gameStates.GAMEPLAY) {
+	// 		window.location.href = 'https://kravitzy.github.io/I-2-Eye/dashboard.html';
+	// 	}
+	// };
 
 	// buttonBackground = createSprite(bootstrapX * 11, bootstrapY * 1);
 	// buttonBackground.addImage('btn0', buttons[0]);
@@ -392,13 +392,12 @@ function faceLookLogic() {
 
 	let isThereEyeContact = pointInside(avgPoint, eyeRect);
 
-	// if (isThereEyeContact) {
-	// 	eyeContactTime++;
-	// }
-	// demo version
-	eyeContactTime++;
+	if (isThereEyeContact) {
+		eyeContactTime++;
+	}
 
-	if (eyeContactTime > 60*4) {
+
+	if (eyeContactTime > 60*1) {
 		resetGame()
 	}
 
